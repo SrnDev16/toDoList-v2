@@ -4,7 +4,9 @@ const btn = document.getElementById('btn');
 const boxList = document.getElementById('list-box');
 
 btn.addEventListener('click', postList);
+boxList.addEventListener('click', handleTweetActions);
 // localStorage.clear();
+
 function postList() {
     const day = date.value.trim()
     const lists = list.value.trim();
@@ -16,7 +18,6 @@ function postList() {
         day: day,
         list: lists
     };
-
 
     saveList(todo);
     renderList(todo);
@@ -38,12 +39,36 @@ function getToDoLists() {
 
 function renderList(todo) {
     const todoElements = `
-    <div class="list">
+    <div class="list" data-id="${todo.id}">
         <span class="day">${todo.day}</span>
         <span class="lists">${todo.list}</span>
-        <button class="btn-delete">X</button>
+        <button class="delete">X</button>
     </div>
     `
     boxList.insertAdjacentHTML('afterbegin', todoElements);
-    // tweetContainer.insertAdjacentHTML('afterbegin', tweetElement);
 }
+
+function handleTweetActions(event) {
+    const target = event.target;
+    const todoElement = target.closest('.list');
+    const id = parseInt(todoElement.dataset.id);
+
+    if (target.classList.contains('delete')) {
+        deleteLists(id);
+        todoElement.remove();
+    }
+
+}
+
+function deleteLists(id) {
+    let lists = getToDoLists();
+    lists = lists.filter(todo => todo.id !== id)
+    localStorage.setItem('todo', JSON.stringify(lists));
+}
+
+function loadLists() {
+    const todoLists = getToDoLists();
+    todoLists.forEach(todo => renderList(todo));
+}
+
+loadLists();
